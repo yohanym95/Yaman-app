@@ -1,0 +1,413 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:flutter_uber/getmap.dart';
+import 'package:flutter_uber/request/google_map_request.dart';
+import 'package:flutter_uber/request/google_map_request.dart' as prefix1;
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart' as prefix0;
+import 'package:google_maps_webservice/places.dart';
+import 'package:location/location.dart';
+
+void main() => runApp(MyApp());
+
+GoogleMapsPlaces _places =
+    new GoogleMapsPlaces(apiKey: "AIzaSyAeBZue8ZW1DFyghF7Vw-yTkoV1j8FB-eg");
+
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: MyHomePage(title: 'Flutter Demo Home Page'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key key, this.title}) : super(key: key);
+
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+
+
+class _MyHomePageState extends State<MyHomePage> {
+  GoogleMapController mapController;
+  static LatLng _initialPosition;
+  LatLng _lastPosition = _initialPosition;
+
+  GoogleMapsServices _googleMapsServices = GoogleMapsServices();
+
+  final Set<Marker> _markers = {};
+  //polyline
+  final Set<Polyline> _polyLine = {};
+
+  //Location location = new Location();
+  Firestore firestore = Firestore.instance;
+  //Geoflutterfire geo = Geoflutterfire();
+
+  final DatabaseReference database = FirebaseDatabase.instance
+      .reference()
+      .child('Uber')
+      .child('drivers_geoPoint');
+
+  TextEditingController locationController = TextEditingController();
+  TextEditingController destinationController = TextEditingController();
+
+  Future<Null> displayPrediction(Prediction p, ScaffoldState scaffold) async {
+  if (p != null) {
+    // get detail (lat/lng)
+    PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
+    final lat = detail.result.geometry.location.lat;
+    final lng = detail.result.geometry.location.lng;
+    destinationController.text = p.description;
+    senRequest(p.description);
+
+    scaffold.showSnackBar(
+        new SnackBar(content: new Text("${p.description} - $lat/$lng")));
+  }
+}
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _getUserLocation();
+    
+    
+  }
+
+  final homeScaffoldKey = new GlobalKey<ScaffoldState>();
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: homeScaffoldKey,
+        appBar: AppBar(
+          title: Text(widget.title),
+        ),
+        body: _initialPosition == null
+            ? Container(
+                alignment: Alignment.center,
+                child: Center(
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            : Stack(
+                children: <Widget>[
+                  GoogleMap(
+                    initialCameraPosition:
+                        CameraPosition(target: _initialPosition, zoom: 10),
+                    onMapCreated: onCreated,
+                    myLocationEnabled: true,
+                    myLocationButtonEnabled: true,
+                    mapType: MapType.normal,
+                    compassEnabled: true,
+                    markers: _markers,
+                    onCameraMove: _onCameraMove,
+                    polylines: _polyLine,
+                  ),
+                  Positioned(
+                    top: 50.0,
+                    right: 15.0,
+                    left: 15.0,
+                    child: Container(
+                      height: 50.0,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(3.0),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.grey,
+                              offset: Offset(1.0, 5.0),
+                              blurRadius: 10,
+                              spreadRadius: 3)
+                        ],
+                      ),
+                      child: TextField(
+                        cursorColor: Colors.black,
+                        controller: locationController,
+                        decoration: InputDecoration(
+                          icon: Container(
+                            margin: EdgeInsets.only(left: 20, top: 5),
+                            width: 10,
+                            height: 10,
+                            child: Icon(
+                              Icons.location_on,
+                              color: Colors.black,
+                            ),
+                          ),
+                          hintText: "pick up",
+                          border: InputBorder.none,
+                          contentPadding:
+                              EdgeInsets.only(left: 15.0, top: 16.0),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  Positioned(
+                    top: 105.0,
+                    right: 15.0,
+                    left: 15.0,
+                    child: Container(
+                      height: 50.0,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(3.0),
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                              color: Colors.grey,
+                              offset: Offset(1.0, 5.0),
+                              blurRadius: 10,
+                              spreadRadius: 3)
+                        ],
+                      ),
+                      child: TextField(
+                        onTap: () async {
+                          Prediction p = await PlacesAutocomplete.show(
+                              context: context,
+                              apiKey: "AIzaSyAeBZue8ZW1DFyghF7Vw-yTkoV1j8FB-eg",
+                              language: "en",
+                              components: [Component(Component.country, "lk")]);
+                          // if(p != null){
+                          //   print('place place place : ${p.description}');
+                          //   destinationController.text = p.description;
+                          // }
+                           displayPrediction(p, homeScaffoldKey.currentState);
+                        },
+                        cursorColor: Colors.black,
+                        controller: destinationController,
+                        textInputAction: TextInputAction.go,
+                        onSubmitted: (value) {
+                          senRequest(value);
+                        },
+                        decoration: InputDecoration(
+                          icon: Container(
+                            margin: EdgeInsets.only(left: 20, top: 5),
+                            width: 10,
+                            height: 10,
+                            child: Icon(
+                              Icons.local_taxi,
+                              color: Colors.black,
+                            ),
+                          ),
+                          hintText: "destination?",
+                          border: InputBorder.none,
+                          contentPadding:
+                              EdgeInsets.only(left: 15.0, top: 16.0),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // Positioned(
+                  //   top: 20,
+                  //   right: 10,
+                  //   child: FloatingActionButton(
+                  //     onPressed: _onAddMarkerPressed,
+                  //     tooltip: "Add Marker",
+                  //     child: Icon(
+                  //       Icons.add_location,
+                  //       color: Colors.white,
+                  //     ),
+                  //     heroTag: 'btn1',
+                  //   ),
+                  // ),
+
+                  Positioned(
+                    bottom: 40,
+                    left: 10,
+                    child: FloatingActionButton(
+                      heroTag: 'btn2',
+                      onPressed: () {
+                        // Navigator.push(context,
+                        //     MaterialPageRoute(builder: (context) => GetMap()));
+                        createdriverposition();
+                      },
+                      tooltip: "Add Marker",
+                      child: Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  // Positioned(
+                  //   bottom: 50,
+                  //   left: 10,
+                  //   child: Slider(
+                  //     min: 100,
+                  //     max: 500,
+                  //     divisions: 4,
+                  //     value: radius.value,
+                  //     label: 'Radius ${radius.value}Km',
+                  //     activeColor: Colors.green,
+                  //     inactiveColor: Colors.green.withOpacity(0.2),
+                  //     onChanged: _updateQuery,
+                  //   ),
+                  // )
+                ],
+              ));
+  }
+
+  void _onCameraMove(CameraPosition position) {
+    setState(() {
+      _lastPosition = position.target;
+    });
+  }
+
+  void onCreated(GoogleMapController controller) {
+    // _startQuery();
+    setState(() {
+      mapController = controller;
+    });
+  }
+
+  //add markers in map
+  void _onAddMarkerPressed(LatLng location, String address) async {
+    
+    setState(() {
+      _markers.add(Marker(
+          markerId: MarkerId(_lastPosition.toString()),
+          position: location,
+          infoWindow: InfoWindow(title: address, snippet: "Go Here"),
+          icon: BitmapDescriptor.defaultMarker));
+
+      // _addGeoPoint();
+     // sendGeoPoint();
+    });
+  }
+
+  //move camera
+  _animateToUser() async {
+    
+    setState(() {
+      mapController.animateCamera(CameraUpdate.newCameraPosition(
+          CameraPosition(target: _initialPosition, zoom: 15)));
+    });
+    // return position;
+  }
+
+  //send geolocation to firebase
+  // sendGeoPoint() async {
+  //   //  print('${point.data}');
+  //   _animateToUser();
+
+
+  //   database.set({
+  //     'latitude': _initialPosition.latitude,
+  //     'longitude': _initialPosition.longitude,
+  //     'name': 'my name'
+  //   }).then((onValue) {
+  //     print('complete');
+  //   }).catchError((onError) {
+  //     print('have error');
+  //   });
+  // }
+
+   Future<void> createdriverposition() async{
+    var positions = <String,dynamic>{
+      'latitude': _initialPosition.latitude,
+      'longitude': _initialPosition.longitude,
+    };
+    _animateToUser();
+
+    return database.push().set(positions);
+
+  }
+
+  void createRoute(String encodedPloyline) {
+    setState(() {
+      _polyLine.add(
+        Polyline(
+            polylineId: PolylineId(_lastPosition.toString()),
+            width: 10,
+            color: Colors.black,
+            points: convertToLatLng(_decodePoly(encodedPloyline))),
+      );
+    });
+  }
+
+  // this method convert list of doubles into latlng
+  List<LatLng> convertToLatLng(List points) {
+    List<LatLng> result = <LatLng>[];
+    for (int i = 0; i < points.length; i++) {
+      if (i % 2 != 0) {
+        result.add(LatLng(points[i - 1], points[i]));
+      }
+    }
+    return result;
+  }
+
+  // !DECODE POLY
+  List _decodePoly(String poly) {
+    var list = poly.codeUnits;
+    var lList = new List();
+    int index = 0;
+    int len = poly.length;
+    int c = 0;
+    // repeating until all attributes are decoded
+    do {
+      var shift = 0;
+      int result = 0;
+
+      // for decoding value of one attribute
+      do {
+        c = list[index] - 63;
+        result |= (c & 0x1F) << (shift * 5);
+        index++;
+        shift++;
+      } while (c >= 32);
+      /* if value is negetive then bitwise not the value */
+      if (result & 1 == 1) {
+        result = ~result;
+      }
+      var result1 = (result >> 1) * 0.00001;
+      lList.add(result1);
+    } while (index < len);
+
+    /*adding to previous value as done in encoding */
+    for (var i = 2; i < lList.length; i++) lList[i] += lList[i - 2];
+
+    print(lList.toString());
+
+    return lList;
+  }
+
+  void senRequest(String intendeedLocation) async {
+    List<prefix0.Placemark> placemark =
+        await prefix0.Geolocator().placemarkFromAddress(intendeedLocation);
+    double latitude = placemark[0].position.latitude;
+    double longitude = placemark[0].position.longitude;
+    LatLng destination = LatLng(latitude, longitude);
+    _onAddMarkerPressed(destination, intendeedLocation);
+    String route = await _googleMapsServices.getRouteCoordinates(
+        _initialPosition, destination);
+    createRoute(route);
+  }
+
+  void _getUserLocation() async {
+    prefix0.Position position = await prefix0.Geolocator().getCurrentPosition(
+      desiredAccuracy: prefix0.LocationAccuracy.best,
+    );
+    List<prefix0.Placemark> placemark = await prefix0.Geolocator()
+        .placemarkFromCoordinates(position.latitude, position.longitude);
+    setState(() {
+      _initialPosition = LatLng(position.latitude, position.longitude);
+      locationController.text = placemark[0].name;
+     // createdriverposition();
+    });
+  }
+}
