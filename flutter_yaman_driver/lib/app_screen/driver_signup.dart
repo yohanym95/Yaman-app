@@ -14,9 +14,9 @@ class DriverSignup extends StatelessWidget{
       appBar: AppBar(
         title: Text(
           'SignUp',
-          style: TextStyle(fontSize: 25.0),
+          style: TextStyle(fontSize: 25.0,color: Colors.grey),
         ),
-        backgroundColor: Color(0xff079CA3),
+        backgroundColor: Colors.pinkAccent,
       ),
       body: RegisterDriver(),
     );
@@ -88,7 +88,7 @@ class RegisterDriver_state extends State<RegisterDriver>{
         ),
         Text('SignUp',
             style: TextStyle(
-                color: Color(0xff079CA3),
+                color: Colors.black,
                 fontWeight: FontWeight.bold,
                 fontSize: 25.0)),
         SizedBox(
@@ -278,7 +278,7 @@ SizedBox(height: 20.0,),
       Padding(
           padding: EdgeInsets.only(left: 20.0,right: 20.0),
           child: RaisedButton(
-            color: Color(0xff079CA3),
+            color: Colors.pinkAccent,
             hoverColor: Color(0xffF5CA99),
             onPressed:
              () async{
@@ -301,9 +301,9 @@ SizedBox(height: 20.0,),
             
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(40.0),
-              side: BorderSide(color: Color(0xff079CA3)),
+              side: BorderSide(color: Colors.pinkAccent,)
             ),
-            child: Text('SignUp',style:TextStyle(color: Colors.white,fontSize: 20.0),)
+            child: Text('SignUp',style:TextStyle(color: Colors.black,fontSize: 20.0),)
           ),
         ),
 
@@ -318,7 +318,7 @@ SizedBox(height: 20.0,),
           ),
             Text('Already have a account?',style:TextStyle(
           decorationStyle: TextDecorationStyle.solid, fontSize: 15.0,
-                    color: Color(0xff079CA3),
+                    color: Colors.black,
                     fontWeight: FontWeight.bold  )
                     ),
 
@@ -329,7 +329,7 @@ SizedBox(height: 20.0,),
                 'Log here',
                 style: TextStyle(
                     decorationStyle: TextDecorationStyle.solid, fontSize: 15.0,
-                    color: Color(0xff079CA3),
+                    color: Colors.black,
                     fontWeight: FontWeight.bold
                     ),
               ),

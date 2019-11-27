@@ -8,8 +8,8 @@ class Drlogin extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sign In', style: TextStyle(fontSize: 25.0)),
-        backgroundColor: Color(0xff079CA3),
+        title: Text('Sign In', style: TextStyle(fontSize: 25.0,color: Colors.grey)),
+        backgroundColor: Colors.pinkAccent,
       ),
       body: Driverlogin(),
     );
@@ -68,7 +68,7 @@ class Driverlogin_State extends State<Driverlogin> {
         ),
         Text('Login',
             style: TextStyle(
-                color: Color(0xff079CA3),
+                color: Colors.black,
                 fontWeight: FontWeight.bold,
                 fontSize: 25.0)),
         SizedBox(
@@ -157,7 +157,7 @@ class Driverlogin_State extends State<Driverlogin> {
                     decoration: TextDecoration.underline,
                     decorationStyle: TextDecorationStyle.solid,
                     fontSize: 15.0,
-                    color: Color(0xff079CA3),
+                    color: Colors.black,
                     fontWeight: FontWeight.bold,
                     decorationThickness: 1.5),
               ),
@@ -181,7 +181,7 @@ class Driverlogin_State extends State<Driverlogin> {
         Padding(
           padding: EdgeInsets.only(left: 20.0, right: 20.0),
           child: RaisedButton(
-              color: Color(0xff079CA3),
+              color: Colors.pinkAccent,
               hoverColor: Color(0xffF5CA99),
               onPressed: () async {
                 if (emailcontroller.text.isEmpty ||
@@ -201,11 +201,11 @@ class Driverlogin_State extends State<Driverlogin> {
               },
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(40.0),
-                side: BorderSide(color: Color(0xff079CA3)),
+                side: BorderSide(color: Colors.pinkAccent),
               ),
               child: Text(
                 'Login',
-                style: TextStyle(color: Colors.white, fontSize: 20.0),
+                style: TextStyle(color: Colors.black, fontSize: 20.0),
               )),
         ),
 
@@ -218,7 +218,7 @@ class Driverlogin_State extends State<Driverlogin> {
                 style: TextStyle(
                     decorationStyle: TextDecorationStyle.solid,
                     fontSize: 15.0,
-                    color: Color(0xff079CA3),
+                    color: Colors.black,
                     fontWeight: FontWeight.bold),
               ),
               onTap: () {
