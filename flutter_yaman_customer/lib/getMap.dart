@@ -391,6 +391,8 @@ class GetMapState extends State<GetMap> {
     // _onAddMarkerPressed(destination, intendeedLocation);
     String route = await _googleMapsServices.getRouteCoordinates(
         _initialPosition, destination);
+        String data = await _googleMapsServices.getDistance(_initialPosition, destination);
+       // print('routes'+data);
     createRoute(route);
   }
 
