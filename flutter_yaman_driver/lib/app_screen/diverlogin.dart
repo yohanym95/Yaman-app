@@ -5,6 +5,7 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'driver_signup.dart';
 import 'auth_D.dart';
 
+
 class Driverlogin extends StatefulWidget {
   @override
   State<StatefulWidget> createState() {
@@ -112,27 +113,49 @@ class DriverloginState extends State<Driverlogin> {
                       return "Enter the Password";
                     }
                     return null;
-                  },
-                  controller: passwordcontroller,
-                  obscureText: _isHiddenPw,
-                  decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.lock),
-                      suffixIcon: IconButton(
-                        onPressed: _visiblePw,
-                        icon: _isHiddenPw
-                            ? Icon(Icons.visibility_off)
-                            : Icon(Icons.visibility),
-                      ),
-                      errorStyle:
-                          TextStyle(color: Colors.redAccent, fontSize: 15.0),
-                      labelText: 'Password',
-                      hintText: 'Password',
-                      hintStyle: TextStyle(fontSize: 15.0, color: Colors.grey),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      )),
-                  keyboardType: TextInputType.emailAddress,
-                ),
+
+                  }, 
+              controller: passwordcontroller,
+              obscureText: _isHiddenPw,
+              decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.lock),
+                  suffixIcon: IconButton(
+                    onPressed:  _visiblePw,
+                      icon: _isHiddenPw
+                          ? Icon(Icons.visibility_off)
+                          : Icon(Icons.visibility),
+                    ),
+                    errorStyle: TextStyle(
+                    color: Colors.redAccent,
+                    fontSize: 15.0),
+                  labelText: 'Password',
+                  hintText: 'Password',
+                  hintStyle: TextStyle(fontSize: 15.0, color: Colors.grey),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  )),
+              keyboardType: TextInputType.emailAddress,
+            ),
+          ),
+        ),
+        SizedBox(
+          height: 30.0,
+        ),
+
+        //Navigate Signup
+        Center(
+          child: Container(
+            child: GestureDetector(
+              child: Text(
+                'No Account yet?SignUp here',
+                style: TextStyle(
+                    decoration: TextDecoration.underline,
+                    decorationStyle: TextDecorationStyle.solid,
+                    fontSize: 15.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    decorationThickness: 1.5),
+
               ),
             ),
             SizedBox(
@@ -169,6 +192,7 @@ class DriverloginState extends State<Driverlogin> {
               height: 10.0,
             ),
 
+
             //button for login
             Padding(
               padding: EdgeInsets.only(left: 20.0, right: 20.0),
@@ -196,6 +220,7 @@ class DriverloginState extends State<Driverlogin> {
                           MaterialPageRoute(builder: (context) => MyHomePage()),
                           (Route<dynamic> route) => false,
                         );
+
                         setState(() {
                          _isLoading = false; 
                         });
@@ -213,23 +238,37 @@ class DriverloginState extends State<Driverlogin> {
                     style: TextStyle(color: Colors.white, fontSize: 20.0),
                   )),
             ),
+                  return;
+                } else {
+                  bool res = await Auth().signInWithEmail(
+                      emailcontroller.text, passwordcontroller.text);
+                  if (res == true) {
+                    print("hello");
+                  }
+                }
+              },
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(40.0),
+                side: BorderSide(color: Colors.pinkAccent),
+              ),
+              child: Text(
+                'Login',
+                style: TextStyle(color: Colors.black, fontSize: 20.0),
+              )),
+        ),
 
-            //Forget password
-            Center(
-              child: Container(
-                child: GestureDetector(
-                  child: Text(
-                    'I forget my password',
-                    style: TextStyle(
-                        decorationStyle: TextDecorationStyle.solid,
-                        fontSize: 15.0,
-                        color: Color(0xff079CA3),
-                        fontWeight: FontWeight.bold),
-                  ),
-                  onTap: () {
-                    //TODO:DEFINE ONTAP
-                  },
-                ),
+        //Forget password
+        Center(
+          child: Container(
+            child: GestureDetector(
+              child: Text(
+                'I forget my password',
+                style: TextStyle(
+                    decorationStyle: TextDecorationStyle.solid,
+                    fontSize: 15.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold),
+
               ),
             ),
             SizedBox(

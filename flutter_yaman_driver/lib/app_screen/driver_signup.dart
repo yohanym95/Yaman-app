@@ -14,9 +14,9 @@ class DriverSignup extends StatelessWidget {
       appBar: AppBar(
         title: Text(
           'SignUp',
-          style: TextStyle(fontSize: 25.0),
+          style: TextStyle(fontSize: 25.0,color: Colors.grey),
         ),
-        backgroundColor: Color(0xff079CA3),
+        backgroundColor: Colors.pinkAccent,
       ),
       body: RegisterDriver(),
     );
@@ -65,6 +65,7 @@ class RegisterDriverstate extends State<RegisterDriver> {
 
   @override
   Widget build(BuildContext context) {
+
     return ModalProgressHUD(
       inAsyncCall: _isLoading,
           child: Form(
@@ -75,6 +76,7 @@ class RegisterDriverstate extends State<RegisterDriver> {
               'Your Signup will show up here.',
               style: TextStyle(
                 fontSize: 30.0,
+
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
@@ -231,6 +233,7 @@ class RegisterDriverstate extends State<RegisterDriver> {
               height: 20.0,
             ),
 
+
             //sign up button
             Padding(
               padding: EdgeInsets.only(left: 20.0, right: 20.0),
@@ -257,6 +260,7 @@ class RegisterDriverstate extends State<RegisterDriver> {
                           context,
                           MaterialPageRoute(builder: (context) => MyHomePage()),
                           (Route<dynamic> route) => false,
+
                         );
                         setState(() {
                          _isLoading= false; 
@@ -268,7 +272,6 @@ class RegisterDriverstate extends State<RegisterDriver> {
                       });
                      });
 //TODO:navigation for login page
-
                     }
                   },
                   shape: RoundedRectangleBorder(
