@@ -3,17 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:flutter_uber/app_screen/auth_D.dart';
-import 'package:flutter_uber/app_screen/diverlogin.dart';
+import 'package:flutter_uber/app_screen/login/login_screen.dart';
 import 'package:flutter_uber/getmap.dart';
 import 'package:flutter_uber/request/google_map_request.dart';
-import 'package:flutter_uber/request/google_map_request.dart' as prefix1;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart' as prefix0;
 import 'package:google_maps_webservice/places.dart';
-import 'package:location/location.dart';
 
 void main() => runApp(MyApp());
 
@@ -26,8 +22,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: Colors.purple,
       ),
       home: MyHomePage(title: 'Flutter Demo Home Page'),
     );
@@ -53,10 +50,6 @@ class _MyHomePageState extends State<MyHomePage> {
   final Set<Marker> _markers = {};
   //polyline
   final Set<Polyline> _polyLine = {};
-
-  //Location location = new Location();
-  Firestore firestore = Firestore.instance;
-  //Geoflutterfire geo = Geoflutterfire();
 
   FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
   final DatabaseReference database = FirebaseDatabase.instance
@@ -99,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
             {
               Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (context) => Driverlogin()),
+                MaterialPageRoute(builder: (context) => LoginHome()),
                 (Route<dynamic> route) => false,
               )
             }
@@ -129,6 +122,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  // create the token for get notification when user request driver
   update(String token) {
     print(token);
     // textValue = token;
@@ -144,17 +138,17 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
         key: homeScaffoldKey,
         appBar: AppBar(
-          title: Text(widget.title),
+          backgroundColor: Colors.purple,
+          title: Text('යමං - Yaman'),
           actions: <Widget>[
-                  
-                  IconButton(
-                    icon: Icon(Icons.exit_to_app),
-                    tooltip: "Logout",
-                    onPressed: () async {
-                      signOut();
-                    },
-                  ),
-                ],
+            IconButton(
+              icon: Icon(Icons.exit_to_app),
+              tooltip: "Logout",
+              onPressed: () async {
+                signOut();
+              },
+            ),
+          ],
         ),
         body: _initialPosition == null
             ? Container(
@@ -364,10 +358,6 @@ class _MyHomePageState extends State<MyHomePage> {
     return database.push().set(positions);
   }
 
-  // void locationRemove(){
-  //   database.child(userId).remove();
-  // }
-
   void createRoute(String encodedPloyline) {
     setState(() {
       _polyLine.add(
@@ -452,11 +442,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void signOut() async {
-    
     await FirebaseAuth.instance.signOut().then((onValue) {
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => Driverlogin()),
+        MaterialPageRoute(builder: (context) => LoginHome()),
         (Route<dynamic> route) => false,
       );
     });

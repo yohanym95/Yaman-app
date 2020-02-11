@@ -1,7 +1,8 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_yaman_driver/addRentalPost.dart';
-import 'model/posts.dart';
+import 'package:flutter_yaman_driver/app_Screen/Rental/addRentalPost.dart';
+import 'package:flutter_yaman_driver/model/posts.dart';
+
 
 class Rental extends StatefulWidget {
   @override

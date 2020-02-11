@@ -297,7 +297,7 @@ class GetMapState extends State<GetMap> {
             markerId: MarkerId('${values["latitude"]} ${values["longitude"]}'),
             position: LatLng(values["latitude"], values["longitude"]),
             icon: BitmapDescriptor.defaultMarker,
-            infoWindow: InfoWindow(title: 'Sunil Shantha', snippet: 'buhaha'),
+            infoWindow: InfoWindow(title: 'Drivers', snippet: 'Place Details'),
             onTap: () {
               driverController.text =
                   '${values["latitude"]} /${values["longitude"]}';
@@ -391,8 +391,6 @@ class GetMapState extends State<GetMap> {
     // _onAddMarkerPressed(destination, intendeedLocation);
     String route = await _googleMapsServices.getRouteCoordinates(
         _initialPosition, destination);
-        String data = await _googleMapsServices.getDistance(_initialPosition, destination);
-       // print('routes'+data);
     createRoute(route);
   }
 

@@ -2,10 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_uber/app_screen/login/login_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-
-import 'app_screen/diverlogin.dart';
 
 class GetMap extends StatefulWidget {
   @override
@@ -41,7 +40,7 @@ class GetMapState extends State<GetMap> {
           if (currentUser == null)
             {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => Driverlogin()))
+                  MaterialPageRoute(builder: (context) => LoginHome()))
             }
           else
             {getDriversMarkers(), userId = currentUser.uid}

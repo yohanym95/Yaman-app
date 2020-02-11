@@ -1,8 +1,10 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_yaman_driver/app_Screen/Rental/rental.dart';
+import 'package:flutter_yaman_driver/app_Screen/login/login_screen.dart';
+import 'package:flutter_yaman_driver/logic/auth.dart';
 import 'package:flutter_yaman_driver/getMap.dart';
-import 'package:flutter_yaman_driver/rental.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,53 +18,46 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.pink,
       ),
-      home: MyHomePage(title: 'යමං - Yaman '),
+      home: MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
-  String textValue;
+  String uId = userId;
+  String userName;
 
   @override
   void initState() {
-    // TODO: implement initState
-    firebaseMessaging.configure(
-      onLaunch: (Map<String, dynamic> msg) {
-        print("onLaunch called");
-      },
-      onResume: (Map<String, dynamic> msg) {
-        print("onResume called");
-      },
-      onMessage: (Map<String, dynamic> msg) {
-        print("pnMessage called");
-      },
-    );
-    firebaseMessaging.requestNotificationPermissions(
-        const IosNotificationSettings(sound: true, alert: true, badge: true));
-
-    firebaseMessaging.onIosSettingsRegistered.listen((onData) {
-      print('IOS Setting registered : ');
-    });
-    firebaseMessaging.getToken().then((token) {
-      update(token);
-    });
+    // print(uId + '   $userName');
+    super.initState();
+    FirebaseAuth.instance.currentUser().then((currentUser) => {
+          if (currentUser == null)
+            {
+              Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => LoginHome()),
+                (Route<dynamic> route) => false,
+              )
+            }
+          else
+            {userName = currentUser.displayName}
+        });
   }
 
-  update(String token) {
-    print(token);
-    textValue = token;
-    setState(() {});
+  void signOut() async {
+    await FirebaseAuth.instance.signOut().then((onValue) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => LoginHome()),
+        (Route<dynamic> route) => false,
+      );
+    });
   }
 
   @override
@@ -70,86 +65,95 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: Colors.pink[50],
       appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          CarouselSlider(
-            height: 380,
-            aspectRatio: 2.0,
-            enlargeCenterPage: true,
-            onPageChanged: (index) {
-              setState(() {});
+        title: Text('Yaman'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            tooltip: "Logout",
+            onPressed: () async {
+              signOut();
             },
-            items: <Widget>[
-              GestureDetector(
-                child: Card(
-                  child: Column(
-                    children: <Widget>[
-                      Image.asset('images/tuktukvehicle.png'),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        'Rides',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
-                        textAlign: TextAlign.center,
-                      )
-                    ],
-                  ),
-                ),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => GetMap()));
-                },
-              ),
-              GestureDetector(
-                child: Card(
-                  child: Column(
-                    children: <Widget>[
-                      Image.asset('images/bikerental.png'),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        'Rental',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20.0),
-                        textAlign: TextAlign.center,
-                      )
-                    ],
-                  ),
-                ),
-                onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => Rental()));
-                },
-              ),
-              GestureDetector(
-                child: Card(
-                  child: Column(
-                    children: <Widget>[
-                      Image.asset('images/payment.png'),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        'History',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 20),
-                        textAlign: TextAlign.center,
-                      )
-                    ],
-                  ),
-                ),
-                onTap: () {},
-              )
-            ],
-          )
+          ),
         ],
+      ),
+      body: Container(
+        child: Column(
+          //    mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Text('Hi $userName !'),
+            CarouselSlider(
+              height: 400,
+              aspectRatio: 2.0,
+              enlargeCenterPage: true,
+              items: <Widget>[
+                GestureDetector(
+                  child: Card(
+                    child: Column(
+                      children: <Widget>[
+                        Image.asset('images/tuktukvehicle.png'),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          'Rides',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20),
+                          textAlign: TextAlign.center,
+                        )
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => GetMap()));
+                  },
+                ),
+                GestureDetector(
+                  child: Card(
+                    child: Column(
+                      children: <Widget>[
+                        Image.asset('images/bikerental.png'),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          'Rental',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20.0),
+                          textAlign: TextAlign.center,
+                        )
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => Rental()));
+                  },
+                ),
+                GestureDetector(
+                  child: Card(
+                    child: Column(
+                      children: <Widget>[
+                        Image.asset('images/payment.png'),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        Text(
+                          'History',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 20),
+                          textAlign: TextAlign.center,
+                        )
+                      ],
+                    ),
+                  ),
+                  onTap: () {},
+                )
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
